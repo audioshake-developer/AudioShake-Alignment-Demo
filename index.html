@@ -81,6 +81,13 @@
                     </div>
 
                 </div>
+                <div class="card-body">
+                    <div class="">
+                        <p>Load Assets</p>
+                        <p>Select Asset to Play</p>
+                        <p>Create Alignment or Select Existing Alignment from Alignments List</p>
+                    </div>
+                </div>
             </section>
             <!-- Asset Loader -->
             <section class="card">
@@ -126,10 +133,13 @@
                             </div>
                         </div>
                         <div class="or-divider">OR</div>
-                        <div class="url-input-group">
-                            <input type="url" id="urlInput" placeholder="Enter demo-assets.json URL" class="input">
-                            <button id="loadUrlBtn" class="btn-primary">Load</button>
+                        <div hidden>
+                            <div class="url-input-group">
+                                <input type="url" id="urlInput" placeholder="Enter demo-assets.json URL" class="input">
+                                <button id="loadUrlBtn" class="btn-primary">Load</button>
+                            </div>
                         </div>
+
                         <button id="loadDemoBtn" class="btn-text">Load Demo Assets</button>
                     </div>
             </section>
