@@ -349,6 +349,13 @@ body {
     margin-top: 8px;
 }
 
+.note {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    position: relative;
+}
+
 .or-divider {
     text-align: center;
     color: var(--text-secondary);

@@ -70,7 +70,6 @@
             <!-- Tools  -->
             <section class="card">
                 <div class="card-header">
-                    <!-- <h2>Tools</h2> -->
                     <div class="tools-left">
                         <button id="consoleToggle" class="btn-secondary">
                             API Console
@@ -81,23 +80,6 @@
                         </button>
                     </div>
 
-                </div>
-                <div class="card-body">
-                    <div class="asset-loader">
-                        <div class="upload-area" id="uploadArea">
-                            <div class="upload-content">
-                                <span class="icon large">📁</span>
-                                <p>Drop demo-assets.json here or click to browse</p>
-                                <input type="file" id="fileInput" accept=".json" hidden>
-                            </div>
-                        </div>
-                        <div class="or-divider">OR</div>
-                        <div class="url-input-group">
-                            <input type="url" id="urlInput" placeholder="Enter demo-assets.json URL" class="input">
-                            <button id="loadUrlBtn" class="btn-primary">Load</button>
-                        </div>
-                        <button id="loadDemoBtn" class="btn-text">Load Demo Assets</button>
-                    </div>
                 </div>
             </section>
             <!-- Asset Loader -->
@@ -110,6 +92,31 @@
                     </button> -->
                 </div>
                 <div class="card-body">
+                    <div class="note">
+                        <p>
+                            Create asset from your source
+                        <p>
+                        <div class="url-input-group">
+                            <div class="left">
+                                <input type="text" id="assetTitleInput" placeholder="Title" class="input">
+                            </div>
+                            <input type="url" id="assetSourceURLInput"
+                                placeholder="Enter source url from a publically accessabile url or pre-signed url "
+                                class="input">
+                            <button id="addAssetBtn" class="btn-primary">
+                                <span class="icon">+</span>
+                                Add Asset</button>
+                        </div>
+
+                    </div>
+                    <div class="or-divider">OR</div>
+                    <div class="note">
+                        <p>
+                            Learn how to prepare your demo data using our <a
+                                href="https://www.npmjs.com/package/create-demo-assets" target="_blank">Create Demo
+                                Assets tool</a>.
+                        <p>
+                    </div>
                     <div class="asset-loader">
                         <div class="upload-area" id="uploadArea">
                             <div class="upload-content">
@@ -125,7 +132,6 @@
                         </div>
                         <button id="loadDemoBtn" class="btn-text">Load Demo Assets</button>
                     </div>
-                </div>
             </section>
 
             <!-- Assets Grid -->

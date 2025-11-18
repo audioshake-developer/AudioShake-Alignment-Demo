@@ -31,6 +31,11 @@ const elements = {
     loadUrlBtn: document.getElementById('loadUrlBtn'),
     loadDemoBtn: document.getElementById('loadDemoBtn'),
 
+    assetTitleInput: document.getElementById('assetTitleInput'),
+    assetSourceURLInput: document.getElementById('assetSourceURLInput'),
+    addAssetBtn: document.getElementById('addAssetBtn'),
+
+
     // Assets
     assetsSection: document.getElementById('assetsSection'),
     assetsGrid: document.getElementById('assetsGrid'),
@@ -96,6 +101,7 @@ function setupEventListeners() {
     elements.consoleToggle.addEventListener('click', () => toggleSidebar(!state.displaySidebar));
 
     elements.clearDebug.addEventListener('click', clearDebugOutput);
+    elements.addAssetBtn.addEventListener('click', loadNewAssetFromSource);
 
     // API Methods
     document.querySelectorAll('.method-btn').forEach(btn => {
@@ -344,8 +350,80 @@ async function handleURLLoad() {
     }
 }
 
+/**
+ * 
+ * assetTitleInput
+                            assetSourceURLInput
+                            addAssetBtn
+ */
+
+
+function loadNewAssetFromSource() {
+    const sourceURL = elements.assetSourceURLInput.value.trim();
+    const title = elements.assetTitleInput.value || "Untitled";
+    const allowedExtensions = ['mp3', 'mp4', 'wav', 'flac', 'mov', 'aac'];
+    const format = (() => {
+        // Clean URL by removing query parameters and fragments
+        const cleanedURL = sourceURL.split('?')[0].split('#')[0];
+        const fileName = cleanedURL.split('/').pop(); // Get the last part of the URL (file name)
+        const extension = fileName.split('.').pop().toLowerCase(); // Extract the extension
+
+        // Check if the extension is allowed
+        if (!allowedExtensions.includes(extension)) {
+            console.warn(`Unsupported file type: ${extension}. Defaulting to 'audio/mpeg'.`);
+            return 'audio/mpeg'; // Default MIME type for unsupported files
+        }
+
+        // Map the extension to its correct MIME type
+        const mimeByExtension = {
+            mp3: 'audio/mpeg',
+            mp4: 'video/mp4',
+            wav: 'audio/wav',
+            flac: 'audio/flac',
+            mov: 'video/quicktime',
+            aac: 'audio/aac'
+        };
+
+        return mimeByExtension[extension];
+    })();
+
+    const newAsset = {
+        assets: [
+            {
+                src: `${sourceURL}`,
+                title: `${title}`,
+                format: `${format}`
+            }
+        ]
+    };
+
+    loadAssets(newAsset.assets);
+    // Proceed with asset creation or processing using `sourceURL`, `title`, and `format`
+    console.log(`Asset created with URL: ${sourceURL}, Title: ${title}, MIME Type: ${format}`);
+
+
+}
+
+
+
+
 function loadDemoAssets() {
-    const demoData = { "assets": [{ "src": "https://audioshake.s3.us-east-1.amazonaws.com/demo-assets/Chupe-Jaae-English.mp3?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIA4HDN2YLZIASF33OU%2F20251117%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20251117T171433Z&X-Amz-Expires=43200&X-Amz-Signature=e68223a889676255fc3514426c84e155239d03b859c48c0d70be8430ce61238d&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject", "title": "Chupe-Jaae-English.mp3", "format": "audio/mpeg" }, { "src": "https://audioshake.s3.us-east-1.amazonaws.com/demo-assets/Chupe-Jaae-English.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIA4HDN2YLZIASF33OU%2F20251117%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20251117T171433Z&X-Amz-Expires=43200&X-Amz-Signature=54aad0f9ae90892f1c65b54b6d71cc1272f693d9b84adcf9e3dd78b860534e6e&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject", "title": "Chupe-Jaae-English.mp4", "format": "video/mp4" }] };
+    const demoData = {
+        "assets": [
+            {
+                "src": "https://audioshake.s3.us-east-1.amazonaws.com/demo-assets/surfing.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIA4HDN2YLZIASF33OU%2F20251118%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20251118T052256Z&X-Amz-Expires=576000&X-Amz-Signature=734b1133ca2bc8eba57ad9d21b66d1aff502621424bfeee6f41da69ddf98c954&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                "title": "surfing.mp4",
+                "format": "video/mp4",
+                "expiry": "2025-11-24T21:22:56.813Z"
+            },
+            {
+                "src": "https://spatial-explorer.s3.us-east-1.amazonaws.com/spatial-Tech-Startups-DisneyAccelerator-Demo-Day-2024.mp4",
+                "title": "DisneyAccelerator-Demo-Day-2024.mp4",
+                "format": "video/mp4",
+                "expiry": "2025-11-24T21:43:53.555Z"
+            }
+        ]
+    };
     loadAssets(demoData.assets);
 }
 
