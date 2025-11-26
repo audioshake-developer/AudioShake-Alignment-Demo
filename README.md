@@ -89,7 +89,8 @@ Headers: { 'x-api-key': 'YOUR_API_KEY' }
 
 ## Task Response Structure
 
-Tasks return a targets array. Each target has:
+Tasks return a targets array.
+Each target has:
 - `model`: The processing model (e.g., 'alignment')
 - `status`: 'processing', 'completed', or 'failed'
 - `output`: Array of output files with `link`, `format`, `type`
