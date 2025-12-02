@@ -532,7 +532,7 @@ function selectAsset(index) {
 
     loadMedia(state.selectedAsset);
     elements.playerSection.style.display = 'block';
-    if (!isVideo) {
+    if (!state.isDemo) {
         loadAlignments();
     }
 
