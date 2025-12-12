@@ -1,4 +1,8 @@
-// AudioShake API Client
+/**
+ * AudioShake API Client
+ * Wraps API interactions including authentication (via IndexedDB), 
+ * task creation, and polling logic.
+ */
 class AudioShakeAPI {
     constructor() {
         this.baseURL = 'https://api.audioshake.ai';
@@ -10,7 +14,10 @@ class AudioShakeAPI {
         this.initDB();
     }
 
-    // IndexedDB Setup
+    /**
+     * Initialize IndexedDB to securely store the API Key in the browser.
+     * This persistence allows the user to refresh the page without re-entering credentials.
+     */
     async initDB() {
         return new Promise((resolve, reject) => {
             const request = indexedDB.open(this.dbName, 1);
@@ -124,7 +131,7 @@ class AudioShakeAPI {
         const config = {
             ...options,
             headers: {
-                'x-api-key': this.apiKey,
+                'x-api-key': this.apiKey, // Required for all AudioShake requests
                 'Content-Type': 'application/json',
                 ...options.headers
             }
@@ -157,7 +164,12 @@ class AudioShakeAPI {
         }
     }
 
-    // Create Task with targets
+    /**
+     * Create a generalized task.
+     * @param {string} url - Publicly accessible URL of the asset.
+     * @param {Array} targets - List of processing targets (e.g. separation, alignment).
+     * @param {string} callbackUrl - Optional webhook URL for completion notification.
+     */
     async createTask(url, targets, callbackUrl = null) {
         const payload = {
             url,
@@ -171,7 +183,10 @@ class AudioShakeAPI {
         });
     }
 
-    // Create Alignment Task (helper method)
+    /**
+     * Helper to specifically create an 'alignment' task.
+     * Defaults to JSON output format and English language.
+     */
     async createAlignmentTask(url, formats = ['json'], language = 'en') {
         return await this.createTask(url, [
             {
@@ -187,7 +202,10 @@ class AudioShakeAPI {
         return await this.request(`/tasks/${taskId}`);
     }
 
-    // List Tasks
+    /**
+     * List recent tasks.
+     * @param {object} params - Query parameters (skip, take, etc.)
+     */
     async listTasks(params = {}) {
         const queryParams = new URLSearchParams(params).toString();
         const endpoint = queryParams ? `/tasks?${queryParams}` : '/tasks';
@@ -212,7 +230,7 @@ class AudioShakeAPI {
                         onUpdate(task);
                     }
 
-                    // ✅ Check the first target's status
+                    // Check the status of the first target (alignment)
                     const target = task.targets?.[0];
 
                     if (!target) {
@@ -262,5 +280,5 @@ class AudioShakeAPI {
     }
 }
 
-// Export singleton instance
+// Export singleton instance for global use
 const api = new AudioShakeAPI();

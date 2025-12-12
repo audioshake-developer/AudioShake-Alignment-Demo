@@ -1,4 +1,3 @@
-//navigation 
 
 // navigation to sections
 function goToSection(id) {
@@ -13,17 +12,19 @@ function goToSection(id) {
 
 // V17
 // Application State
+// Application State
+// Stores the runtime state of the application, including assets, selected items, and UI preferences.
 const state = {
-    assets: [],
-    selectedAsset: null,
-    alignments: [],
-    selectedAlignment: null,
-    currentMedia: null,
-    theme: localStorage.getItem('theme') || 'light',
-    displaySidebar: true,
-    selectedAlignmentJSON: null,
-    editingSelectedAlignment: false,
-    isDemo: false
+    assets: [],             // Array of loaded audio/video assets
+    selectedAsset: null,    // Currently selected asset object
+    alignments: [],         // Array of alignment tasks fetched from API
+    selectedAlignment: null,// Currently selected alignment task
+    currentMedia: null,     // Active HTMLMediaElement (audio or video)
+    theme: localStorage.getItem('theme') || 'light', // 'light' or 'dark'
+    displaySidebar: true,   // Sidebar visibility state
+    selectedAlignmentJSON: null, // Parsed alignment data (lyrics & timing)
+    editingSelectedAlignment: false, // Flag for edit mode
+    isDemo: false           // True if currently using canned demo assets
 };
 
 // DOM Elements
@@ -38,16 +39,12 @@ const elements = {
 
     // Sidebar
     sidebar: document.getElementById('sidebar'),
-    // sidebarToggle: document.getElementById('sidebarToggle'),
-    // sidebarOpenBtn: document.getElementById('sidebarOpenBtn'),
     debugOutput: document.getElementById('debugOutput'),
     clearDebug: document.getElementById('clearDebug'),
 
     // Asset Loader
     uploadArea: document.getElementById('uploadArea'),
     fileInput: document.getElementById('fileInput'),
-    // urlInput: document.getElementById('urlInput'),
-    // loadUrlBtn: document.getElementById('loadUrlBtn'),
     loadDemoBtn: document.getElementById('loadDemoBtn'),
 
     assetSourceURLInput: document.getElementById('assetSourceURLInput'),
@@ -130,15 +127,17 @@ async function loadIntro() {
 
 
 // Initialize App
+// Initialize App
+// Sets up the environment, event listeners, and initial state.
 async function init() {
-    loadIntro();
-    toggleSidebar(false);
-    setupTheme();
-    setupEventListeners();
-    setupAPIListeners();
-    await api.dbReady;
-    checkAuth();
-    toggleAlignmentTools(false)
+    loadIntro();                // Render markdown intro
+    toggleSidebar(false);       // Start with sidebar closed (or state preference)
+    setupTheme();               // Apply theme
+    setupEventListeners();      // Attach UI event handlers
+    setupAPIListeners();        // Attach API state listeners
+    await api.dbReady;          // Wait for IndexedDB initialization
+    checkAuth();                // Check for existing API key
+    toggleAlignmentTools(false) // Hide tools initially
 }
 
 // Theme
@@ -182,7 +181,6 @@ function setupEventListeners() {
     // Asset Loader
     elements.uploadArea.addEventListener('click', () => elements.fileInput.click());
     elements.fileInput.addEventListener('change', handleFileUpload);
-    // elements.loadUrlBtn.addEventListener('click', handleURLLoad);
     elements.loadDemoBtn.addEventListener('click', loadDemoAssets);
 
     // Drag and Drop
@@ -325,6 +323,8 @@ function toggleAlignmentsAccordion(e) {
 }
 
 // Filter Alignments
+// Filters the visible alignment items based on the search input.
+// Uses robust normalization (removes special chars) for "fuzzy" matching.
 function filterAlignments() {
     const filterText = elements.filterSource.value.toLowerCase().replace(/[^a-z0-9]/g, '');
     const items = elements.alignmentsList.querySelectorAll('.alignment-item');
@@ -401,6 +401,11 @@ async function executeAPIMethod(method) {
 }
 
 // Asset Loading
+/**
+ * Handles file selection from the file input.
+ * Parses JSON asset lists or future file types.
+ * @param {Event} e - Input change event
+ */
 async function handleFileUpload(e) {
     const file = e.target.files[0];
     if (file) await loadAssetsFromFile(file);
@@ -429,43 +434,6 @@ async function loadAssetsFromFile(file) {
         showToast(`Error loading file: ${err.message}`);
     }
 }
-
-// async function loadAssetsFromFile(file) {
-//     try {
-//         const text = await file.text();
-//         const data = JSON.parse(text);
-
-//         if (!data.assets) {
-//             showToast('File does not contain assets');
-//             elements.assetsSection.style.display = 'none';
-//             return;
-//         }
-//         loadAssets(data.assets);
-//     } catch (err) {
-//         showToast(`Error loading file: ${err.message}`);
-//     }
-// }
-
-// async function handleURLLoad() {
-//     const url = elements.urlInput.value.trim();
-//     if (!url) return;
-
-//     try {
-//         const response = await fetch(url);
-//         const data = await response.json();
-
-//         if (!data.assets) {
-//             showToast('File does not contain assets');
-//             state.assets = [];
-//             renderAssets();
-//             return;
-//         }
-//         loadAssets(data.assets);
-//     } catch (err) {
-//         showToast(`Error loading URL: ${err.message}`);
-//     }
-// }
-
 
 
 // URL helper function
@@ -527,17 +495,21 @@ function loadNewAssetFromSource() {
 
     loadAssets(newAsset.assets);
     // Proceed with asset creation or processing using `sourceURL`, `title`, and `format`
+    // Proceed with asset creation or processing using `sourceURL`, `title`, and `format`
     console.log(`Asset created with URL: ${sourceURL}, Title: ${title}, MIME Type: ${format}`);
 }
 
-
+/**
+ * Loads canned demo assets (e.g. Wordless.wav) for quick testing.
+ * Sets the app into "Demo Mode" which uses local static alignment files instead of API calls.
+ */
 async function loadDemoAssets() {
     state.isDemo = true
-
+    // note: this demo asset matches the demo alignment file alignment-wordless.json
     const demoData = {
         "assets": [
             {
-                "src": "https://demos.spatial-explorer.com/demo-assets/Wordless.wav",
+                "src": "https://demos.audioshake.ai/demo-assets/Wordless.wav",
                 "title": "Wordless.wav",
                 "format": "audio/wav",
                 "expiry": null
@@ -547,6 +519,11 @@ async function loadDemoAssets() {
     loadAssets(demoData.assets);
 }
 
+/**
+ * Main function to load a list of assets into the state.
+ * Resets the UI to the "Assets" view and clears previous selections.
+ * @param {Array} assets - List of asset objects {src, title, format}
+ */
 async function loadAssets(assets) {
     state.assets = assets;
     state.selectedAsset = null;
@@ -555,6 +532,8 @@ async function loadAssets(assets) {
     renderAssets();
 
     elements.assetsSection.style.display = 'block';
+
+    // Hide downstream sections until an asset is selected to prevent state confusion
     elements.playerSection.style.display = 'none';
     elements.alignmentsSection.style.display = 'none';
 
@@ -585,12 +564,19 @@ function getFormatLabel(format) {
     return '📎 File';
 }
 
+/**
+ * Handles selection of a specific asset card.
+ * Scrolls to player, loads media, and optionally triggers alignment loading (if not in Demo mode).
+ * @param {number} index - Index of the asset in state.assets
+ */
 function selectAsset(index) {
     goToSection('playerSection')
 
     clearAlignments()
     state.selectedAsset = state.assets[index];
-    // todo update the alignment filter to be fuzzy 
+
+    // Pre-fill filter with fuzzy matching logic in mind
+    // (We take the first part of filename as a reasonable default for searching alignments)
     elements.filterSource.value = state.selectedAsset.title.split(".")[0]
 
     document.querySelectorAll('.asset-card').forEach((card, i) => {
@@ -599,12 +585,19 @@ function selectAsset(index) {
 
     loadMedia(state.selectedAsset);
     elements.playerSection.style.display = 'block';
+
+    // Only fetch live alignments if we have a real API key and aren't in demo mode
     if (!state.isDemo) {
         loadAlignments();
     }
 
 }
 
+/**
+ * Loads the selected asset into the appropriate player (Audio or Video).
+ * Toggles visibility between audio/video elements.
+ * @param {object} asset 
+ */
 async function loadMedia(asset) {
     const isVideo = asset.format.includes('video');
 
@@ -620,11 +613,11 @@ async function loadMedia(asset) {
         state.currentMedia = elements.audioPlayer;
     }
 
+    // In Demo Mode, immediately load the static alignment data
     if (state.isDemo) {
         // toggleAlignmentTools(show)
         const res = await fetch("./alignment-wordless.json");
         const data = await res.json();
-        // console.log(data.lines)
         state.selectedAlignmentJSON = data
         renderLyrics(data);
     }
@@ -648,6 +641,8 @@ async function createAlignment() {
         addDebugEntry(task, 'success');
 
         showToast('Processing... This may take a few minutes');
+
+        elements.lyricsContainer.innerHTML = 'Processing... This may take a few minutes';
         const completedTask = await api.pollTask(task.id, (update) => {
             addDebugEntry(update, 'info');
         });
@@ -668,6 +663,12 @@ async function createAlignment() {
     }
 }
 
+/**
+ * Fetches the list of alignment tasks from the API.
+ * Applies filtering rules:
+ * 1. Must be an 'alignment' task.
+ * 2. Must be created within the last 72 hours (link expiry).
+ */
 async function loadAlignments() {
 
     if (!api.hasAPIKey()) return;
@@ -679,6 +680,7 @@ async function loadAlignments() {
         const tasks = await api.listTasks({ skip, take });
 
         // Filter: Must be 'alignment' model AND created within last 72 hours
+        // Links expire after 72 hours, so show only valid ones
         const cutoffTime = Date.now() - (72 * 60 * 60 * 1000);
 
         state.alignments = Array.isArray(tasks) ? tasks.filter(task => {
@@ -690,6 +692,7 @@ async function loadAlignments() {
         renderAlignments();
         elements.alignmentsSection.style.display = 'block';
 
+        // Apply any specific text filter (if user typed one)
         if (elements.filterSource.value) {
             filterAlignments();
         }
@@ -843,11 +846,6 @@ function toggleAlignmentTools(show) {
     } else {
         elements.alignmentTools.classList.add('hidden');
     }
-
-
-
-    // downloadAlignmentButton
-    // editAlignmenButton
 
 }
 
