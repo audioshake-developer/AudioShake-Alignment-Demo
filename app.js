@@ -1,3 +1,16 @@
+//navigation 
+
+// navigation to sections
+function goToSection(id) {
+    let yPos = document.getElementById(id).getBoundingClientRect().top;
+
+    window.scrollBy({
+        top: yPos,
+        behavior: 'smooth'   // Optional. Smooth scroll.
+    });
+}
+
+
 // V17
 // Application State
 const state = {
@@ -33,8 +46,8 @@ const elements = {
     // Asset Loader
     uploadArea: document.getElementById('uploadArea'),
     fileInput: document.getElementById('fileInput'),
-    urlInput: document.getElementById('urlInput'),
-    loadUrlBtn: document.getElementById('loadUrlBtn'),
+    // urlInput: document.getElementById('urlInput'),
+    // loadUrlBtn: document.getElementById('loadUrlBtn'),
     loadDemoBtn: document.getElementById('loadDemoBtn'),
 
     assetSourceURLInput: document.getElementById('assetSourceURLInput'),
@@ -169,7 +182,7 @@ function setupEventListeners() {
     // Asset Loader
     elements.uploadArea.addEventListener('click', () => elements.fileInput.click());
     elements.fileInput.addEventListener('change', handleFileUpload);
-    elements.loadUrlBtn.addEventListener('click', handleURLLoad);
+    // elements.loadUrlBtn.addEventListener('click', handleURLLoad);
     elements.loadDemoBtn.addEventListener('click', loadDemoAssets);
 
     // Drag and Drop
@@ -313,11 +326,13 @@ function toggleAlignmentsAccordion(e) {
 
 // Filter Alignments
 function filterAlignments() {
-    const filterText = elements.filterSource.value.toLowerCase();
+    const filterText = elements.filterSource.value.toLowerCase().replace(/[^a-z0-9]/g, '');
     const items = elements.alignmentsList.querySelectorAll('.alignment-item');
 
     items.forEach(item => {
-        const sourceText = item.querySelector('.alignment-info')?.textContent.toLowerCase() || '';
+        const rawSource = item.querySelector('.alignment-info')?.textContent || '';
+        const sourceText = rawSource.toLowerCase().replace(/[^a-z0-9]/g, '');
+
         if (sourceText.includes(filterText)) {
             item.style.display = '';
         } else {
@@ -392,27 +407,64 @@ async function handleFileUpload(e) {
 }
 
 async function loadAssetsFromFile(file) {
+    state.isDemo = false;
     try {
         const text = await file.text();
         const data = JSON.parse(text);
-        loadAssets(data.assets || data);
+
+        // Check if data itself is an array, OR if it has an assets array
+        const assetsToLoad = Array.isArray(data) ? data : data.assets;
+
+        // if no assets, show error and hide assets and media player and alignments sections
+        if (!assetsToLoad || !Array.isArray(assetsToLoad)) {
+            showToast('File does not contain a valid list of assets');
+            elements.assetsSection.style.display = 'none';
+            elements.alignmentsSection.style.display = 'none';
+            elements.playerSection.style.display = 'none';
+            return;
+        }
+
+        loadAssets(assetsToLoad);
     } catch (err) {
         showToast(`Error loading file: ${err.message}`);
     }
 }
 
-async function handleURLLoad() {
-    const url = elements.urlInput.value.trim();
-    if (!url) return;
+// async function loadAssetsFromFile(file) {
+//     try {
+//         const text = await file.text();
+//         const data = JSON.parse(text);
 
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-        loadAssets(data.assets || data);
-    } catch (err) {
-        showToast(`Error loading URL: ${err.message}`);
-    }
-}
+//         if (!data.assets) {
+//             showToast('File does not contain assets');
+//             elements.assetsSection.style.display = 'none';
+//             return;
+//         }
+//         loadAssets(data.assets);
+//     } catch (err) {
+//         showToast(`Error loading file: ${err.message}`);
+//     }
+// }
+
+// async function handleURLLoad() {
+//     const url = elements.urlInput.value.trim();
+//     if (!url) return;
+
+//     try {
+//         const response = await fetch(url);
+//         const data = await response.json();
+
+//         if (!data.assets) {
+//             showToast('File does not contain assets');
+//             state.assets = [];
+//             renderAssets();
+//             return;
+//         }
+//         loadAssets(data.assets);
+//     } catch (err) {
+//         showToast(`Error loading URL: ${err.message}`);
+//     }
+// }
 
 
 
@@ -424,7 +476,14 @@ function getFilenameFromUrlRegex(url) {
 }
 
 function loadNewAssetFromSource() {
+    state.isDemo = false;
     const sourceURL = elements.assetSourceURLInput.value.trim();
+    // if not a url return
+    if (!sourceURL) {
+        showToast('Please enter a URL');
+        return;
+    }
+
     // todo get the filename from the url 
     const title = getFilenameFromUrlRegex(sourceURL) || "Untitled";
     const allowedExtensions = ['mp3', 'mp4', 'wav', 'flac', 'mov', 'aac'];
@@ -490,10 +549,16 @@ async function loadDemoAssets() {
 
 async function loadAssets(assets) {
     state.assets = assets;
+    state.selectedAsset = null;
+
+    goToSection('assetsSection');
     renderAssets();
+
     elements.assetsSection.style.display = 'block';
+    elements.playerSection.style.display = 'none';
+    elements.alignmentsSection.style.display = 'none';
+
     showToast(`Loaded ${assets.length} assets`);
-    loadAlignments()
 }
 
 function renderAssets() {
@@ -521,6 +586,8 @@ function getFormatLabel(format) {
 }
 
 function selectAsset(index) {
+    goToSection('playerSection')
+
     clearAlignments()
     state.selectedAsset = state.assets[index];
     // todo update the alignment filter to be fuzzy 
@@ -610,9 +677,16 @@ async function loadAlignments() {
 
     try {
         const tasks = await api.listTasks({ skip, take });
-        state.alignments = Array.isArray(tasks) ? tasks.filter(task =>
-            task.targets?.some(t => t.model === 'alignment')
-        ) : [];
+
+        // Filter: Must be 'alignment' model AND created within last 72 hours
+        const cutoffTime = Date.now() - (72 * 60 * 60 * 1000);
+
+        state.alignments = Array.isArray(tasks) ? tasks.filter(task => {
+            const isAlignment = task.targets?.some(t => t.model === 'alignment');
+            const isRecent = new Date(task.createdAt).getTime() > cutoffTime;
+            return isAlignment && isRecent;
+        }) : [];
+
         renderAlignments();
         elements.alignmentsSection.style.display = 'block';
 

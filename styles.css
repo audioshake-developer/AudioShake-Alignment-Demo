@@ -471,6 +471,69 @@ body {
     right: 0;
 }
 
+/* Container for the columns */
+.load-demo-container {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: var(--spacing);
+    padding: var(--spacing) 0;
+}
+
+/* Individual column */
+.note.column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* justify-content: center; */
+    padding: 0 var(--spacing);
+}
+
+.note.column h2 {
+    font-size: 1rem;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.note.column p {
+    margin-bottom: 16px;
+    font-size: 0.875rem;
+    line-height: 1.4;
+}
+
+/* Vertical Divider */
+.or-divider-vertical {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+}
+
+.or-divider-vertical::before {
+    content: '';
+    position: absolute;
+    top: 10%;
+    bottom: 10%;
+    left: 50%;
+    width: 1px;
+    background: var(--border);
+    transform: translateX(-50%);
+}
+
+.or-divider-vertical span {
+    position: relative;
+    background: var(--bg-primary);
+    /* Ensure this matches your card background */
+    padding: 8px 0;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    z-index: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
 .url-input-group {
     display: flex;
     gap: 8px;

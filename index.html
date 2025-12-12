@@ -100,48 +100,59 @@
                     <h2>Load Demo Assets</h2>
                 </div>
                 <div class="card-body">
-                    <div hidden>
+                    <!-- <div hidden>
                         <div class="url-input-group">
                             <input type="url" id="urlInput" placeholder="Enter demo-assets.json URL" class="input">
                             <button id="loadUrlBtn" class="btn-primary">Load</button>
                         </div>
-                    </div>
-                    <div class="note">
-                        <button id="loadDemoBtn" class="btn-primary">
-                            Load AudioShake Demo Assets
-                        </button>
+                    </div> -->
 
-                    </div>
-
-                    <div class="or-divider">OR</div>
-
-                    <!-- Own assets -->
-                    <div class="note">
-                        <h2> Create asset from your source URL</h2>
-
-                        <div class="url-input-group">
-                            <input type="url" id="assetSourceURLInput"
-                                placeholder="Enter source url from a publically accessabile url or pre-signed url "
-                                class="input">
-                            <button id="addAssetBtn" class="btn-primary">
-                                <span class="icon">+</span>
-                                Add Asset</button>
+                    <div class="load-demo-container">
+                        <!-- Col 1: Use Demo Assets -->
+                        <div class="note column">
+                            <h2>Use Demo Assets</h2>
+                            <p>Explore our pre-loaded demo tracks to see stem separation in action.</p>
+                            <button id="loadDemoBtn" class="btn-primary">
+                                Load AudioShake Demo Assets
+                            </button>
                         </div>
-                    </div>
 
-                    <div class="or-divider">OR</div>
-                    <div class="note">
-                        <h2>Bulk Load Demo Assets</h2>
-                    </div>
-                    <div class="asset-loader">
-                        <div class="upload-area" id="uploadArea">
-                            <div class="upload-content">
-                                <span class="icon large">📁</span>
-                                <p>Drop demo-assets.json bulk assets data file here or click to browse</p>
-                                <input type="file" id="fileInput" accept=".json" hidden>
+                        <!-- Divider -->
+                        <div class="or-divider-vertical"><span>OR</span></div>
+
+                        <!-- Col 2: Load from URL -->
+                        <div class="note column">
+                            <h2>Load from URL</h2>
+                            <p>Enter a public URL to process your own audio file.</p>
+                            <div class="url-input-group">
+                                <input type="url" id="assetSourceURLInput" placeholder="https://example.com/audio.mp3"
+                                    class="input">
+                                <button id="addAssetBtn" class="btn-primary">
+                                    <span class="icon">+</span>
+                                    Add Asset
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Divider -->
+                        <div class="or-divider-vertical"><span>OR</span></div>
+
+                        <!-- Col 3: Bulk Load -->
+                        <div class="note column">
+                            <h2>Bulk Load</h2>
+                            <p>Upload a JSON file containing multiple assets.</p>
+                            <div class="asset-loader">
+                                <div class="upload-area" id="uploadArea">
+                                    <div class="upload-content">
+                                        <span class="icon large">📁</span>
+                                        <p>Drop demo-assets.json file here</p>
+                                        <input type="file" id="fileInput" accept=".json" hidden>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
+                </div>
 
 
             </section>
